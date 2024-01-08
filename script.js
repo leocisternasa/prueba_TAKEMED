@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', async function () {
 })
 
 function displayPatients(patients) {
+  const tableContainer = document.createElement('div')
+  tableContainer.classList.add('table-responsive')
   const table = document.getElementById('patientsTable')
 
   //  fila de encabezado
@@ -35,6 +37,7 @@ function displayPatients(patients) {
     if (headerRow.rowIndex === 0) {
       headerCell.classList.add('font-weight-bold', 'text-lg') // Estilos a la primera row de la tabla generados dinamicamente
       headerCell.textContent = key.toUpperCase()
+      headerCell.setAttribute('scope', 'col')
     }
   }
   const actionsHeader = headerRow.insertCell()
@@ -57,6 +60,8 @@ function displayPatients(patients) {
     createAppointmentButton.onclick = () => openAppointmentModal(patient.id)
     actionsCell.appendChild(createAppointmentButton)
   })
+  tableContainer.appendChild(table)
+  document.body.appendChild(tableContainer)
 }
 
 function openAppointmentModal(patientId, patientName) {
