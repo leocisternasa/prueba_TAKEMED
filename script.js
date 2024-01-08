@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', async function () {
+  document.addEventListener('submit', submitAppointmentForm)
   try {
     const apiUrl = 'https://takemed.health/api/patients_testing/'
     const token =
@@ -24,28 +25,24 @@ document.addEventListener('DOMContentLoaded', async function () {
 })
 
 function displayPatients(patients) {
-  const tableContainer = document.createElement('div')
-  tableContainer.classList.add('table-responsive')
   const table = document.getElementById('patientsTable')
 
-  //  fila de encabezado
   const headerRow = table.insertRow(0)
   for (const key in patients[0]) {
     const headerCell = headerRow.insertCell()
     headerCell.textContent = key
 
     if (headerRow.rowIndex === 0) {
-      headerCell.classList.add('font-weight-bold', 'text-lg') // Estilos a la primera row de la tabla generados dinamicamente
+      headerCell.classList.add('font-weight-bold', 'text-lg')
       headerCell.textContent = key.toUpperCase()
       headerCell.setAttribute('scope', 'col')
     }
   }
-  const actionsHeader = headerRow.insertCell()
-  actionsHeader.textContent = 'Acciones'
-  actionsHeader.classList.add('font-weight-bold', 'text-lg')
-  actionsHeader.textContent = actionsHeader.textContent.toUpperCase()
+  const appointemntsHeader = headerRow.insertCell()
+  appointemntsHeader.textContent = 'Agendar Cita'
+  appointemntsHeader.classList.add('font-weight-bold', 'text-lg')
+  appointemntsHeader.textContent = appointemntsHeader.textContent.toUpperCase()
 
-  // tabla con los datos de los pacientes
   patients.forEach(patient => {
     const row = table.insertRow()
     for (const key in patient) {
@@ -53,82 +50,80 @@ function displayPatients(patients) {
       cell.textContent = patient[key]
     }
 
-    const actionsCell = row.insertCell()
+    const appointmentCell = row.insertCell()
     const createAppointmentButton = document.createElement('button')
     createAppointmentButton.textContent = 'Crear Cita'
     createAppointmentButton.classList.add('btn', 'btn-primary')
     createAppointmentButton.onclick = () => openAppointmentModal(patient.id)
-    actionsCell.appendChild(createAppointmentButton)
+    appointmentCell.appendChild(createAppointmentButton)
   })
-  tableContainer.appendChild(table)
-  document.body.appendChild(tableContainer)
 }
 
 function openAppointmentModal(patientId, patientName) {
-  // Obtén una referencia al modal y al formulario
   const modal = document.getElementById('appointmentModal')
   const form = document.getElementById('appointmentForm')
 
-  // Asegúrate de que ambos elementos existan antes de intentar acceder a sus propiedades
   if (!modal || !form) {
     console.error('No se encontró el modal o el formulario.')
     return
   }
 
-  // Llena el formulario con la información del paciente si es necesario
-  form.querySelector('#medico_nombre').value = '' // Limpia el campo del médico_nombre
-  form.querySelector('#lugar').value = '' // Limpia el campo del lugar
-  form.querySelector('#descripcion').value = '' // Limpia el campo de la descripción
-  form.querySelector('#fecha').value = '' // Limpia el campo de la fecha
+  form.querySelector('#medico_nombre').value = ''
+  form.querySelector('#lugar').value = ''
+  form.querySelector('#descripcion').value = ''
+  form.querySelector('#fecha').value = ''
 
-  // Asigna el id del paciente al formulario
   form.querySelector('#patientId').value = patientId
 
-  // Abre el modal
   const modalInstance = new bootstrap.Modal(modal)
   modalInstance.show()
 }
 
-function openSuccessModal() {
-  // Obtén una referencia al modal y al formulario
-  const modal = document.getElementById('successModal')
+function closeAppointmentModal() {
+  const modal = document.getElementById('appointmentModal')
 
-  // Asegúrate de que ambos elementos existan antes de intentar acceder a sus propiedades
   if (!modal) {
     console.error('No se encontró el modal o el formulario.')
     return
   }
 
-  // Abre el modal
+  const modalInstance = bootstrap.Modal.getInstance(modal)
+  modalInstance.hide()
+}
+
+function openSuccessModal() {
+  const modal = document.getElementById('successModal')
+
+  if (!modal) {
+    console.error('No se encontró el modal o el formulario.')
+    return
+  }
+
   const modalInstance = new bootstrap.Modal(modal)
   modalInstance.show()
 }
 
 function openErrorModal() {
-  // Obtén una referencia al modal y al formulario
   const modal = document.getElementById('errorModal')
 
-  // Asegúrate de que ambos elementos existan antes de intentar acceder a sus propiedades
   if (!modal) {
     console.error('No se encontró el modal o el formulario.')
     return
   }
 
-  // Abre el modal
   const modalInstance = new bootstrap.Modal(modal)
   modalInstance.show()
 }
 
-async function submitAppointmentForm() {
+async function submitAppointmentForm(e) {
+  e.preventDefault()
   try {
-    // Obtiene los valores del formulario
     const medicoNombre = document.getElementById('medico_nombre').value
     const lugar = document.getElementById('lugar').value
     const descripcion = document.getElementById('descripcion').value
     const fecha = document.getElementById('fecha').value
     const pacienteId = document.getElementById('patientId').value
 
-    // Crea el objeto JSON
     const appointmentData = {
       paciente_id: parseInt(pacienteId),
       medico_nombre: medicoNombre,
@@ -137,7 +132,6 @@ async function submitAppointmentForm() {
       fecha: fecha
     }
 
-    // Realiza la solicitud POST a la API
     const response = await fetch(
       'https://takemed.health/api/patient_appointments_testing/',
       {
@@ -156,13 +150,11 @@ async function submitAppointmentForm() {
 
     const data = await response.json()
     console.log('Cita médica creada exitosamente:', data)
+    closeAppointmentModal()
     openSuccessModal()
-
-    // Puedes realizar acciones adicionales aquí, como cerrar el modal o actualizar la interfaz de usuario
   } catch (error) {
     console.error('Error al crear la cita médica:', error)
     openErrorModal()
-    // Puedes manejar errores y mostrar mensajes al usuario si es necesario
   }
 }
 async function inicializarMapa() {
@@ -206,7 +198,6 @@ async function inicializarMapa() {
         zoom: 5
       })
 
-      // Utiliza un bucle for para manejar las operaciones asíncronas de manera sincrónica
       for (const paciente of newData) {
         const ubicacion = paciente.ubicacion
 

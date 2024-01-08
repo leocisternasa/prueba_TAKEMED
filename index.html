@@ -24,14 +24,9 @@
 
       <table id="patientsTable" class="table table-hover">
         <thead class="table-dark"></thead>
-        <tbody id="patientsTable">
-          <!-- La tabla se llenará dinámicamente aquí -->
-        </tbody>
+        <tbody id="patientsTable"></tbody>
       </table>
     </div>
-
-    <!--modal de bootstrap-->
-
     <div
       class="modal fade"
       id="appointmentModal"
@@ -88,24 +83,19 @@
                 />
               </div>
               <input type="hidden" id="patientId" name="patientId" value="" />
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cerrar
+                </button>
+                <button type="submit" class="btn btn-primary">
+                  Guardar Cita
+                </button>
+              </div>
             </form>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="submitAppointmentForm()"
-              data-bs-dismiss="modal"
-            >
-              Guardar Cita
-            </button>
           </div>
         </div>
       </div>
