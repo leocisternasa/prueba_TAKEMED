@@ -1,24 +1,23 @@
+const API_URL = 'https://takemed.health/api/patients_testing/'
+const TOKEN = '01afc6c3df3dbcd8dccd3038dd33aca1b0cfe315ad42cac5632661d8aebbe73b'
+const CREATE_APPOINTMENT_URL =
+  ' https://takemed.health/api/patient_appointments_testing/'
+
 document.addEventListener('DOMContentLoaded', async function () {
   document.addEventListener('submit', submitAppointmentForm)
   try {
-    const apiUrl = 'https://takemed.health/api/patients_testing/'
-    const token =
-      '01afc6c3df3dbcd8dccd3038dd33aca1b0cfe315ad42cac5632661d8aebbe73b'
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch(API_URL, {
       method: 'GET',
       headers: {
-        Authorization: `Token ${token}`
+        Authorization: `Token ${TOKEN}`
       }
     })
 
     if (!response.ok) {
       throw new Error('Error al obtener datos desde la API')
     }
-
-    const data = await response.json()
-    console.log(data)
-    displayPatients(data)
+    const patients = await response.json()
+    displayPatients(patients)
   } catch (error) {
     console.error('Error al obtener datos:', error)
   }
@@ -26,30 +25,17 @@ document.addEventListener('DOMContentLoaded', async function () {
 
 function displayPatients(patients) {
   const table = document.getElementById('patientsTable')
-
-  const headerRow = table.insertRow(0)
-  for (const key in patients[0]) {
-    const headerCell = headerRow.insertCell()
-    headerCell.textContent = key
-
-    if (headerRow.rowIndex === 0) {
-      headerCell.classList.add('font-weight-bold', 'text-lg')
-      headerCell.textContent = key.toUpperCase()
-      headerCell.setAttribute('scope', 'col')
-    }
-  }
-  const appointemntsHeader = headerRow.insertCell()
-  appointemntsHeader.textContent = 'Agendar Cita'
-  appointemntsHeader.classList.add('font-weight-bold', 'text-lg')
-  appointemntsHeader.textContent = appointemntsHeader.textContent.toUpperCase()
-
   patients.forEach(patient => {
     const row = table.insertRow()
-    for (const key in patient) {
+    for (const patientAttribute in patient) {
       const cell = row.insertCell()
-      cell.textContent = patient[key]
+      if (patientAttribute === 'genero') {
+        cell.textContent =
+          patient[patientAttribute] === 'MAL' ? 'Masculino' : 'Femenino'
+      } else {
+        cell.textContent = patient[patientAttribute]
+      }
     }
-
     const appointmentCell = row.insertCell()
     const createAppointmentButton = document.createElement('button')
     createAppointmentButton.textContent = 'Crear Cita'
@@ -57,9 +43,21 @@ function displayPatients(patients) {
     createAppointmentButton.onclick = () => openAppointmentModal(patient.id)
     appointmentCell.appendChild(createAppointmentButton)
   })
+
+  const headerThead = document.getElementById('patientsTableHeader')
+  const headerRow = document.createElement('tr')
+  for (const key in patients[0]) {
+    const headerCell = document.createElement('th')
+    headerCell.innerHTML = key.replace('_', ' ').toUpperCase()
+    headerRow.appendChild(headerCell)
+  }
+  const headerCell = document.createElement('th')
+  headerCell.innerHTML = 'Agendar Cita'.toUpperCase()
+  headerRow.appendChild(headerCell)
+  headerThead.appendChild(headerRow)
 }
 
-function openAppointmentModal(patientId, patientName) {
+function openAppointmentModal(patientId) {
   const modal = document.getElementById('appointmentModal')
   const form = document.getElementById('appointmentForm')
 
@@ -68,10 +66,10 @@ function openAppointmentModal(patientId, patientName) {
     return
   }
 
-  form.querySelector('#medico_nombre').value = ''
-  form.querySelector('#lugar').value = ''
-  form.querySelector('#descripcion').value = ''
-  form.querySelector('#fecha').value = ''
+  form.querySelector('#practicionerName').value = ''
+  form.querySelector('#place').value = ''
+  form.querySelector('#description').value = ''
+  form.querySelector('#date').value = ''
 
   form.querySelector('#patientId').value = patientId
 
@@ -118,38 +116,34 @@ function openErrorModal() {
 async function submitAppointmentForm(e) {
   e.preventDefault()
   try {
-    const medicoNombre = document.getElementById('medico_nombre').value
-    const lugar = document.getElementById('lugar').value
-    const descripcion = document.getElementById('descripcion').value
-    const fecha = document.getElementById('fecha').value
-    const pacienteId = document.getElementById('patientId').value
+    const practicionerName = document.getElementById('practicionerName').value
+    const place = document.getElementById('place').value
+    const description = document.getElementById('description').value
+    const date = document.getElementById('date').value
+    const patientId = document.getElementById('patientId').value
 
     const appointmentData = {
-      paciente_id: parseInt(pacienteId),
-      medico_nombre: medicoNombre,
-      lugar: lugar,
-      descripcion: descripcion,
-      fecha: fecha
+      paciente_id: parseInt(patientId),
+      medico_nombre: practicionerName,
+      lugar: place,
+      descripcion: description,
+      fecha: date
     }
 
-    const response = await fetch(
-      'https://takemed.health/api/patient_appointments_testing/',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Token 01afc6c3df3dbcd8dccd3038dd33aca1b0cfe315ad42cac5632661d8aebbe73b`
-        },
-        body: JSON.stringify(appointmentData)
-      }
-    )
+    const response = await fetch(CREATE_APPOINTMENT_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Token ${TOKEN}`
+      },
+      body: JSON.stringify(appointmentData)
+    })
 
     if (!response.ok) {
       throw new Error('Error al crear la cita médica')
     }
 
     const data = await response.json()
-    console.log('Cita médica creada exitosamente:', data)
     closeAppointmentModal()
     openSuccessModal()
   } catch (error) {
@@ -157,16 +151,12 @@ async function submitAppointmentForm(e) {
     openErrorModal()
   }
 }
-async function inicializarMapa() {
+async function initializeMap() {
   try {
-    const apiUrl = 'https://takemed.health/api/patients_testing/'
-    const token =
-      '01afc6c3df3dbcd8dccd3038dd33aca1b0cfe315ad42cac5632661d8aebbe73b'
-
-    const response = await fetch(apiUrl, {
+    const response = await fetch(API_URL, {
       method: 'GET',
       headers: {
-        Authorization: `Token ${token}`
+        Authorization: `Token ${TOKEN}`
       }
     })
 
@@ -176,42 +166,40 @@ async function inicializarMapa() {
 
     const data = await response.json()
 
-    const newData = data.map(paciente => {
-      const coordenadasArray = paciente.ubicacion.split(',')
+    const patients = data.map(patient => {
+      const coordinatesArray = patient.ubicacion.split(',')
       return {
-        ...paciente,
-        ubicacion: {
-          lat: parseFloat(coordenadasArray[0]),
-          long: parseFloat(coordenadasArray[1])
+        ...patient,
+        location: {
+          lat: parseFloat(coordinatesArray[0]),
+          long: parseFloat(coordinatesArray[1])
         }
       }
     })
 
     if (
       data.length > 0 &&
-      typeof newData[0].ubicacion.lat === 'number' &&
-      typeof newData[0].ubicacion.long === 'number'
+      typeof patients[3].location.lat === 'number' &&
+      typeof patients[3].location.long === 'number'
     ) {
-      const primeraUbicacion = newData[0].ubicacion
-      const mapa = new google.maps.Map(document.getElementById('mapa'), {
-        center: { lat: primeraUbicacion.lat, lng: primeraUbicacion.long },
+      const coordinates = patients[3].location
+      const mapa = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: coordinates.lat, lng: coordinates.long },
         zoom: 5
       })
 
-      for (const paciente of newData) {
-        const ubicacion = paciente.ubicacion
+      for (const patient of patients) {
+        const location = patient.location
 
         if (
-          typeof ubicacion.lat === 'number' &&
-          typeof ubicacion.long === 'number'
+          typeof location.lat === 'number' &&
+          typeof location.long === 'number'
         ) {
           new google.maps.Marker({
-            position: { lat: ubicacion.lat, lng: ubicacion.long },
+            position: { lat: location.lat, lng: location.long },
             map: mapa,
-            title: `${paciente.nombre} ${paciente.apellido}`
+            title: `${patient.nombre} ${patient.apellido}`
           })
-
-          console.log('llego aqui')
         }
       }
     } else {
