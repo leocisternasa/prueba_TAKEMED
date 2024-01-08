@@ -26,14 +26,19 @@ document.addEventListener('DOMContentLoaded', async function () {
 function displayPatients(patients) {
   const table = document.getElementById('patientsTable')
 
-  // Crea la fila de encabezado
+  //  fila de encabezado
   const headerRow = table.insertRow(0)
   for (const key in patients[0]) {
     const headerCell = headerRow.insertCell()
     headerCell.textContent = key
+
+    if (headerRow.rowIndex === 0) {
+      headerCell.classList.add('font-weight-bold', 'text-lg') // Estilos a la primera row de la tabla generados dinamicamente
+      headerCell.textContent = key.toUpperCase()
+    }
   }
 
-  // Llena la tabla con los datos de los pacientes
+  // tabla con los datos de los pacientes
   patients.forEach(patient => {
     const row = table.insertRow()
     for (const key in patient) {
