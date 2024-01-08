@@ -84,6 +84,36 @@ function openAppointmentModal(patientId, patientName) {
   modalInstance.show()
 }
 
+function openSuccessModal() {
+  // Obtén una referencia al modal y al formulario
+  const modal = document.getElementById('successModal')
+
+  // Asegúrate de que ambos elementos existan antes de intentar acceder a sus propiedades
+  if (!modal) {
+    console.error('No se encontró el modal o el formulario.')
+    return
+  }
+
+  // Abre el modal
+  const modalInstance = new bootstrap.Modal(modal)
+  modalInstance.show()
+}
+
+function openErrorModal() {
+  // Obtén una referencia al modal y al formulario
+  const modal = document.getElementById('errorModal')
+
+  // Asegúrate de que ambos elementos existan antes de intentar acceder a sus propiedades
+  if (!modal) {
+    console.error('No se encontró el modal o el formulario.')
+    return
+  }
+
+  // Abre el modal
+  const modalInstance = new bootstrap.Modal(modal)
+  modalInstance.show()
+}
+
 async function submitAppointmentForm() {
   try {
     // Obtiene los valores del formulario
@@ -121,9 +151,12 @@ async function submitAppointmentForm() {
 
     const data = await response.json()
     console.log('Cita médica creada exitosamente:', data)
+    openSuccessModal()
+
     // Puedes realizar acciones adicionales aquí, como cerrar el modal o actualizar la interfaz de usuario
   } catch (error) {
     console.error('Error al crear la cita médica:', error)
+    openErrorModal()
     // Puedes manejar errores y mostrar mensajes al usuario si es necesario
   }
 }

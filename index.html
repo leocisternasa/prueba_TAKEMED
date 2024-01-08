@@ -101,8 +101,77 @@
               type="button"
               class="btn btn-primary"
               onclick="submitAppointmentForm()"
+              data-bs-dismiss="modal"
             >
               Guardar Cita
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="successModal"
+      tabindex="-1"
+      aria-labelledby="successModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="successModalLabel">Éxito</h5>
+            <button
+              type="button"
+              class="btn btn-success btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">La cita médica se agendó correctamente.</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="errorModal"
+      tabindex="-1"
+      aria-labelledby="errorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-danger-subtle">
+            <h5 class="modal-title" id="errorModalLabel">Error</h5>
+            <button
+              type="button"
+              class="btn-close btn btn-danger"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            >
+              Cerrar
+            </button>
+          </div>
+          <div class="modal-body">
+            Hubo un problema al agendar la cita médica.
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
             </button>
           </div>
         </div>
