@@ -127,3 +127,68 @@ async function submitAppointmentForm() {
     // Puedes manejar errores y mostrar mensajes al usuario si es necesario
   }
 }
+async function inicializarMapa() {
+  try {
+    const apiUrl = 'https://takemed.health/api/patients_testing/'
+    const token =
+      '01afc6c3df3dbcd8dccd3038dd33aca1b0cfe315ad42cac5632661d8aebbe73b'
+
+    const response = await fetch(apiUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Token ${token}`
+      }
+    })
+
+    if (!response.ok) {
+      throw new Error('Error al obtener datos desde la API')
+    }
+
+    const data = await response.json()
+
+    const newData = data.map(paciente => {
+      const coordenadasArray = paciente.ubicacion.split(',')
+      return {
+        ...paciente,
+        ubicacion: {
+          lat: parseFloat(coordenadasArray[0]),
+          long: parseFloat(coordenadasArray[1])
+        }
+      }
+    })
+
+    if (
+      data.length > 0 &&
+      typeof newData[0].ubicacion.lat === 'number' &&
+      typeof newData[0].ubicacion.long === 'number'
+    ) {
+      const primeraUbicacion = newData[0].ubicacion
+      const mapa = new google.maps.Map(document.getElementById('mapa'), {
+        center: { lat: primeraUbicacion.lat, lng: primeraUbicacion.long },
+        zoom: 5
+      })
+
+      // Utiliza un bucle for para manejar las operaciones asíncronas de manera sincrónica
+      for (const paciente of newData) {
+        const ubicacion = paciente.ubicacion
+
+        if (
+          typeof ubicacion.lat === 'number' &&
+          typeof ubicacion.long === 'number'
+        ) {
+          new google.maps.Marker({
+            position: { lat: ubicacion.lat, lng: ubicacion.long },
+            map: mapa,
+            title: `${paciente.nombre} ${paciente.apellido}`
+          })
+
+          console.log('llego aqui')
+        }
+      }
+    } else {
+      console.error('Datos de ubicación no válidos o no disponibles.')
+    }
+  } catch (error) {
+    console.error('Error al obtener datos de ubicación:', error)
+  }
+}
